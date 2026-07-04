@@ -2,6 +2,17 @@
 const assert = require('assert');
 const logic = require('./logic.js');
 
+// Mock environment globals for Node compatibility
+if (typeof window === 'undefined') {
+  window = {};
+}
+if (typeof localStorage === 'undefined') {
+  window.localStorage = {
+    getItem: () => null,
+    setItem: () => {}
+  };
+}
+
 // Mock review data for testing
 const mockReviews = [
   {

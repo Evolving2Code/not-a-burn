@@ -6,6 +6,20 @@
 // Array state to hold all customer reviews
 let reviews = [];
 
+// Load saved reviews from localStorage if available (browser only)
+if (typeof localStorage !== 'undefined') {
+  const saved = localStorage.getItem('not_a_burn_reviews');
+  if (saved) {
+    try {
+      reviews = JSON.parse(saved);
+    } catch (e) {
+      console.error('Failed to parse saved reviews from localStorage', e);
+      // fallback to empty array; will be initialized later if needed
+      reviews = [];
+    }
+  }
+}
+
 /**
  * Initialize reviews with mock data
  * @param {Array} initialReviews - Array of review objects to initialize with
@@ -19,6 +33,10 @@ function initializeReviews(initialReviews) {
     reply_text: null,
     status: 'pending'
   }));
+  // Persist to localStorage
+  if (typeof localStorage !== 'undefined') {
+    localStorage.setItem('not_a_burn_reviews', JSON.stringify(reviews));
+  }
 }
 
 /**
@@ -60,6 +78,11 @@ function replyToReview(reviewId, text) {
     status: 'replied'
   };
 
+  // Persist to localStorage
+  if (typeof localStorage !== 'undefined') {
+    localStorage.setItem('not_a_burn_reviews', JSON.stringify(reviews));
+  }
+
   return reviews[reviewIndex];
 }
 
@@ -79,6 +102,10 @@ function addReview(review) {
   };
 
   reviews.push(newReview);
+  // Persist to localStorage
+  if (typeof localStorage !== 'undefined') {
+    localStorage.setItem('not_a_burn_reviews', JSON.stringify(reviews));
+  }
   return newReview;
 }
 
@@ -90,17 +117,16 @@ function addReview(review) {
 function removeReview(reviewId) {
   const initialLength = reviews.length;
   reviews = reviews.filter(review => review.id !== reviewId);
+  // Persist to localStorage
+  if (typeof localStorage !== 'undefined') {
+    localStorage.setItem('not_a_burn_reviews', JSON.stringify(reviews));
+  }
   return reviews.length < initialLength;
 }
 
-window.initializeReviews = initializeReviews;
-window.getReviews = getReviews;
-window.findReviewById = findReviewById;
-window.replyToReview = replyToReview;
-window.addReview = addReview;
-window.removeReview = removeReview;
-
-// Environment-safe exports for browser and Node.js compatibility
+/**
+ * Expose core functions for browser and Node.js compatibility
+ */
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     initializeReviews,
@@ -110,4 +136,14 @@ if (typeof module !== 'undefined' && module.exports) {
     addReview,
     removeReview
   };
+}
+
+/* Browser global assignment ------------------------------------------------- */
+if (typeof window !== 'undefined') {
+  window.initializeReviews = initializeReviews;
+  window.getReviews = getReviews;
+  window.findReviewById = findReviewById;
+  window.replyToReview = replyToReview;
+  window.addReview = addReview;
+  window.removeReview = removeReview;
 }
