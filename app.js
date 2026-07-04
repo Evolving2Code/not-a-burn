@@ -79,18 +79,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Render reviews (from session or mock data)
     renderReviews(window.getReviews());
   } else {
-    // No Supabase client - use mock data and show dashboard
+    // No Supabase client - use mock data but keep login screen visible
     window.initializeReviews([
       { id: 1, customer_name: "John Doe", rating: 5, review_text: "Great product! Love it so far.", reply_text: null, status: 'pending' },
       { id: 2, customer_name: "Jane Smith", rating: 4, review_text: "Good service, fast delivery", reply_text: null, status: 'pending' },
       { id: 3, customer_name: "Bob Johnson", rating: 3, review_text: "Average experience, could be better", reply_text: null, status: 'pending' }
     ]);
 
-    // Hide login screen, show dashboard
-    document.getElementById('login-screen').classList.add('hidden');
-    document.getElementById('dashboard').classList.remove('hidden');
-
-    // Render mock data
+    // Keep login screen visible, render mock data in background
+    // User must click "Sign in with Google" or "Switch Layout" to proceed
     renderReviews(window.getReviews());
   }
 
