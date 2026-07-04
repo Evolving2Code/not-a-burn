@@ -1,0 +1,185 @@
+/* Reset and base styles */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  background: #f5f7fa;
+  color: #333;
+  line-height: 1.6;
+}
+
+/* Header */
+header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 1.5rem;
+  text-align: center;
+  font-size: 1.75rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+/* Summary bar */
+.summary {
+  background: white;
+  padding: 1rem 1.5rem;
+  margin: 1rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  font-weight: 500;
+  display: flex;
+  gap: 1rem;
+}
+
+.summary span {
+  flex: 1;
+  text-align: center;
+}
+
+/* Main grid */
+.grid {
+  display: grid;
+  gap: 1rem;
+  padding: 0 1rem 1rem;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+/* Review cards */
+.card {
+  background: white;
+  border-radius: 12px;
+  padding: 1.25rem;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.customer-name {
+  font-weight: 600;
+  font-size: 1.1rem;
+  color: #2d3748;
+}
+
+.rating {
+  color: #ffd700;
+  font-weight: 500;
+}
+
+/* Status badge */
+.status-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.status-badge.pending {
+  background: #fed7e2;
+  color: #c53030;
+}
+
+.status-badge.replied {
+  background: #c6f6d5;
+  color: #2f855a;
+}
+
+/* Review text */
+.review-text {
+  background: #f7fafc;
+  padding: 0.875rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  color: #4a5568;
+}
+
+/* Textarea */
+.reply-textarea {
+  width: 100%;
+  min-height: 80px;
+  padding: 0.875rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 0.95rem;
+  resize: vertical;
+  transition: border-color 0.2s;
+}
+
+.reply-textarea:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+/* Reply display */
+.reply-display {
+  background: #e6fffa;
+  padding: 0.875rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  color: #234e52;
+  border: 1px solid #b2f5ea;
+}
+
+/* Submit button */
+.submit-btn {
+  background: #667eea;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.25rem;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  align-self: flex-start;
+  transition: background 0.2s, transform 0.1s;
+}
+
+.submit-btn:hover {
+  background: #5a67d8;
+}
+
+.submit-btn:active {
+  transform: scale(0.97);
+}
+
+/* Replied state - disabled button */
+.card.replied .submit-btn {
+  display: none;
+}
+
+.card.replied .reply-textarea {
+  display: none;
+}
+
+/* Responsive mobile-first adjustments */
+@media (min-width: 600px) {
+  .grid {
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    padding: 1rem;
+  }
+
+  header {
+    padding: 2rem;
+    font-size: 2rem;
+  }
+
+  .summary {
+    padding: 1.25rem;
+    font-size: 1rem;
+  }
+}

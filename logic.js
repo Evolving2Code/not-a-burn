@@ -93,6 +93,13 @@ function removeReview(reviewId) {
   return reviews.length < initialLength;
 }
 
+window.initializeReviews = initializeReviews;
+window.getReviews = getReviews;
+window.findReviewById = findReviewById;
+window.replyToReview = replyToReview;
+window.addReview = addReview;
+window.removeReview = removeReview;
+
 // Environment-safe exports for browser and Node.js compatibility
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
