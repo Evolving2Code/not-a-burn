@@ -1,118 +1,89 @@
-// Fetch reviews from data layer and render UI
-function fetchReviews() {
-  const reviews = window.getReviews();
-  renderReviews(reviews);
-}
+/* Supabase Logic Layer */
+const supabase = window.supabase; // Supabase client loaded from CDN
 
+/* AUTH STATE LISTENER */
+window.supabase.auth.onAuthStateChange(async (event, session) => {
+  if (session?.user) {
+    // User is authenticated – hide login, show dashboard
+    document.getElementById('login-screen').classList.add('hidden');
+    document.getElementById('dashboard').classList.remove('hidden');
+
+    // Pull user‑specific reviews
+    await fetchUserReviews(session.user.id);
+  } else {
+    // No session – show login UI
+    document.getElementById('login-screen').classList.remove('hidden');
+    document.getElementById('dashboard').classList.add('hidden');
+  }
+});
+
+/* GOOGLE SIGN‑IN */
+document.getElementById('google-signin').addEventListener('click', async () => {
+  const { error } = await supabase.auth.signInWithOAuth({
+    provider: 'google',
+    options: { redirectTo: window.location.origin }
+  });
+  if (error) console.error('Google sign‑in error:', error);
+});
+
+/* APPLICATION RENDERING */
 function renderReviews(reviews) {
   const grid = document.querySelector('.grid');
   grid.textContent = '';
 
-  // Update summary counts
-  const pendingCount = document.getElementById('pending-count');
-  const repliedCount = document.getElementById('replied-count');
-
-  const pending = reviews.filter(r => r.status === 'pending').length;
-  const replied = reviews.filter(r => r.status === 'replied').length;
-
-  pendingCount.textContent = `Pending: ${pending}`;
-  repliedCount.textContent = `Replied: ${replied}`;
+  const pendingCount   = document.getElementById('pending-count');
+  const repliedCount   = document.getElementById('replied-count');
+  pendingCount.textContent  = `Pending: ${reviews.filter(r => r.status === 'pending').length}`;
+  repliedCount.textContent  = `Replied: ${reviews.filter(r => r.status === 'replied').length}`;
 
   reviews.forEach(review => {
     const card = document.createElement('div');
-    card.className = 'card';
-    if (review.status === 'replied') card.classList.add('replied');
-
-    // Card header
-    const header = document.createElement('div');
-    header.className = 'card-header';
-
-    const name = document.createElement('div');
-    name.className = 'customer-name';
-    name.textContent = review.customer_name;
-
-    const rating = document.createElement('div');
-    rating.className = 'rating';
-    rating.textContent = `Rating: ★★★★★`;
-    rating.style.fontSize = '1rem';
-
-    const status = document.createElement('span');
-    status.className = 'status-badge';
-    status.textContent = review.status;
-    status.classList.add(`status-badge.${review.status}`);
-
-    header.appendChild(name);
-    header.appendChild(rating);
-    header.appendChild(status);
-    card.appendChild(header);
-
-    // Review content
-    const reviewText = document.createElement('div');
-    reviewText.className = 'review-text';
-    reviewText.textContent = review.review_text;
-    reviewText.style.display = review.status === 'replied' ? 'none' : 'block';
-
-    // Reply elements
-    const textarea = document.createElement('textarea');
-    textarea.className = 'reply-textarea';
-    textarea.rows = 4;
-    textarea.placeholder = 'Write your reply...';
-    if (review.status === 'pending') {
-      card.appendChild(textarea);
+    card.className = 'card' + (review.status === 'replied' ? ' replied' : '');
+    card.innerHTML = `
+      <div class="card-header">
+        <div class="customer-name">${review.customer_name}</div>
+        <div class="rating">★★★★★</div>
+        <span class="status-badge ${review.status}">${review.status}</span>
+      </div>
+      <div class="review-text">${review.review_text}</div>
+      ${review.status === 'pending' ? `
+        <textarea class="reply-textarea" rows="4" placeholder="Write your reply..."></textarea>
+        <button class="submit-btn">Submit Reply</button>
+      ` : `
+        <div class="reply-display">Reply: ${reply_text || '(No reply yet)'}</div>
+      `;
     }
 
-    const btn = document.createElement('button');
-    btn.className = 'submit-btn';
-    btn.textContent = 'Submit Reply';
-    btn.addEventListener('click', () => {
-      const replyText = textarea.value.trim();
-      if (replyText) {
-        window.replyToReview(review.id, replyText);
-        fetchReviews();
-      }
-    });
-    btn.style.display = review.status === 'pending' ? 'block' : 'none';
-    card.appendChild(btn);
-
-    // Reply display
-    const replyDisplay = document.createElement('div');
-    replyDisplay.className = 'reply-display';
-    if (review.status === 'replied') {
-      replyDisplay.textContent = review.reply_text || '(No reply yet)';
-      card.appendChild(replyDisplay);
+    // Submit button event
+    const submitBtn = card.querySelector('.submit-btn');
+    if (review.status === 'pending' && submitBtn) {
+      submitBtn.addEventListener('click', async () => {
+        const textarea = card.querySelector('textarea');
+        const replyText = textarea.value.trim();
+        if (replyText) {
+          const { error } = await supabase
+            .from('reviews')
+            .update({ reply_text: replyText, status: 'replied' })
+            .eq('id', review.id);
+          if (!error) {
+            // Refresh UI after successful update
+            renderReviews(window.getReviews());
+          }
+        }
+      });
     }
-
-    grid.appendChild(card);
   });
 }
 
-// Initialize with mock data when DOM loads
-document.addEventListener('DOMContentLoaded', () => {
-  // Mock review data
-  const mockReviews = [
-    {
-      id: 1,
-      customer_name: "John Doe",
-      rating: 5,
-      review_text: "Great product! Love it so far."
-    },
-    {
-      id: 2,
-      customer_name: "Jane Smith",
-      rating: 4,
-      review_text: "Good service, fast delivery"
-    },
-    {
-      id: 3,
-      customer_name: "Bob Johnson",
-      rating: 3,
-      review_text: "Average experience, could be better"
-    }
-  ];
-
-  // Initialize the review data
-  window.initializeReviews(mockReviews);
-
-  // Fetch and render reviews
-  fetchReviews();
+/* INITIALISATION */
+document.addEventListener('DOMContentLoaded', async () => {
+  // If no session yet, seed mock data for first render
+  if (!window.supabase.auth.session) {
+    window.initializeReviews([
+      {id:1, customer_name:"John Doe",   rating:5, review_text:"Great product! Love it so far.", reply_text:null, status:'pending'},
+      {id:2, customer_name:"Jane Smith", rating:4, review_text:"Good service",          review_text:null, status:'pending'},
+      {id:3, customer_name:"Bob Johnson",rating:3, review_text:"Average experience",   review_text:null, status:'pending'}
+    ]);
+  }
+  renderReviews(window.getReviews());
 });
