@@ -5,19 +5,39 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Not A Burn Dashboard</title>
   <link rel="stylesheet" href="style.css">
+
+  <!-- Supabase configuration (local, not committed) -->
+  <script src="config.js"></script>
+
+  <!-- Supabase CDN client - loads before app logic -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
   <header>Not A Burn</header>
 
-  <section class="summary">
-    <span id="pending-count">Pending: 0</span> |
-    <span id="replied-count">Replied: 0</span>
+  <!-- Login Screen Overlay (visible by default) -->
+  <section id="login-screen">
+    <div class="login-card">
+      <h1 class="login-title">Welcome Back</h1>
+      <p class="login-subtitle">Sign in to access your review dashboard</p>
+      <button id="google-signin" class="google-btn">
+        <svg class="google-icon" viewBox="0 0 533.33 544.32">
+          <path fill="#4285F4" d="M533.33 160.43c-7.78-2.54-17.03-4.23-25.27-4.23h-311.5v91.03h146.18c-4.46 24.43-19.73 45.21-40.24 56.48v62.93h65.48c38.29-35.31 56.65-87.48 56.65-155.22 0-39.41-14.38-74.89-38.27-102.38z"/>
+          <path fill="#34A853" d="M106.03 329.11c-10.35-6.62-23.61-10.45-37.78-10.45-28.61 0-52.62 19.31-61.64 45.37-3.22 9.57-3.72 19.69-2.33 29.27 9.43 3.44 19.71 5.38 30.25 5.38 25.68 0 47.44-18.86 55.56-44.62z"/>
+          <path fill="#FBBC04" d="M426.83 185.12c5.34-5.34 15.93-5.34 21.28 0l56.73-56.73c3.13 1.31 6.22 2.92 9.25 4.77 30.91 21.21 47.53 54.21 47.53 95.12 0 39.91-16.62 55.56-44.62z"/>
+          <path fill="#EA4335" d="M106.03 329.11c.26-8.39 2.59-16.44 6.02-22.23 3.75-5.51 8.76-9.42 14.38-11.64-4.81-14.81-14.47-26.92-27.47-35.19-25.68-15.31-57.16-19.12-91.03-9.11-4.11 1.31-7.93 3.75-11.25 6.31l56.73 56.73c29.31-18.72 67.54-7.21 91.03 9.11-12.61 7.27 22.26 19.38 27.47 35.19 3.41 6.21 6.02 13.21 7.89 20.23z"/>
+        </svg>
+        Sign in with Google
+      </button>
+      <button id="toggle-layout" class="toggle-layout">Switch Layout</button>
+    </div>
   </section>
 
-  <main class="grid">
+  <main class="grid hidden" id="dashboard">
     <!-- Review cards will be inserted here -->
   </main>
 
+  <!-- Application logic loads after Supabase is ready -->
   <script src="logic.js"></script>
   <script src="app.js"></script>
 </body>
